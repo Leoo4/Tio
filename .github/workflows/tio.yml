@@ -1,0 +1,84 @@
+# El Tío Ahorrador: actualiza ofertas, publica la página y publica en Facebook e Instagram.
+name: Tío Ahorrador
+
+on:
+  schedule:
+    # 9 am, 1 pm, 5 pm y 9 pm hora del centro de México (UTC-6)
+    - cron: "0 15,19,23,3 * * *"
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "prueba = no publica en redes; publicar = publica la siguiente oferta"
+        type: choice
+        options: [prueba, publicar]
+        default: prueba
+  push:
+    # Al editar links.txt se actualiza la página (sin publicar en redes)
+    branches: [main]
+    paths: [links.txt]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: tio-ahorrador
+  cancel-in-progress: false
+
+jobs:
+  tio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.pagina.outputs.page_url }}
+    env:
+      TZ: America/Mexico_City
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Instalar
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-liberation
+          pip install -r requirements.txt
+
+      - name: Actualizar ofertas
+        run: python generar.py
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - name: Publicar página del link en bio
+        id: pagina
+        uses: actions/deploy-pages@v5
+
+      - name: Publicar en Facebook e Instagram
+        env:
+          MODO: ${{ github.event_name == 'schedule' && 'publicar' || inputs.modo || 'nada' }}
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          AFILIADO: chinastaff
+          PAGINA: https://leoo4.github.io/Tio/
+        run: |
+          case "$MODO" in
+            publicar) python publicar.py ;;
+            prueba)   python publicar.py --prueba ;;
+            *)        echo "Solo se actualizó la página." ;;
+          esac
+
+      - name: Guardar historial
+        if: always()  # aunque algo falle, para no publicar dos veces lo mismo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A salida docs
+          git diff --cached --quiet || git commit -q -m "Ofertas $(date '+%Y-%m-%d %H:%M')"
+          git pull --rebase -q
+          git push
