@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       modo:
-        description: "prueba = no publica en redes; publicar = publica la siguiente oferta"
+        description: "prueba = no publica en redes; publicar = publica la siguiente oferta; revisar = solo revisa el token de Meta"
         type: choice
-        options: [prueba, publicar]
+        options: [prueba, publicar, revisar]
         default: prueba
   push:
     # Al editar links.txt se actualiza la página (sin publicar en redes)
@@ -66,10 +66,12 @@ jobs:
           META_TOKEN: ${{ secrets.META_TOKEN }}
           AFILIADO: chinastaff
           PAGINA: https://leoo4.github.io/Tio/
+          PAGINA_ID: "347882256437445"
         run: |
           case "$MODO" in
             publicar) python publicar.py ;;
             prueba)   python publicar.py --prueba ;;
+            revisar)  python publicar.py --revisar ;;
             *)        echo "Solo se actualizó la página." ;;
           esac
 

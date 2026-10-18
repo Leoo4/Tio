@@ -24,6 +24,7 @@ palomita verde (todo bien) o una X roja (algo falló: abre la vuelta para ver po
 Para publicar o probar en este momento: Actions > "Tío Ahorrador" > "Run workflow":
   prueba    revisa todo y muestra qué publicaría, sin publicar en redes
   publicar  publica ya la siguiente oferta pendiente
+  revisar   solo revisa que el token de Meta funcione
 Para pausar el bot: Actions > "Tío Ahorrador" > botón "..." > "Disable workflow".
 Para volver a publicar una oferta: borra su link de salida/publicados.json.
 
@@ -31,23 +32,23 @@ CONFIGURACIÓN (ya está hecha; solo por si hay que repetirla)
 GitHub:
   - Settings > Pages > Source: "GitHub Actions".
   - Settings > Secrets and variables > Actions > secreto META_TOKEN = token de la
-    página de Facebook (el que no caduca, ver abajo). NUNCA lo pongas en un archivo
+    token del bot de Meta (ver abajo). NUNCA lo pongas en un archivo
     del repositorio: el repositorio es público.
   - El nombre de afiliado y la dirección de la página están en
     .github/workflows/tio.yml (AFILIADO y PAGINA). Los horarios también (cron, en UTC).
-Meta (token de la página):
+Meta (token del bot = usuario del sistema, no caduca):
   1. Tu Instagram debe ser cuenta profesional y estar vinculada a tu página de Facebook.
-  2. developers.facebook.com > app "Tio", con los casos de uso "Administra todo en tu
-     página" y "Administrar mensajes y contenido en Instagram" (configuración con
-     inicio de sesión de Facebook).
-  3. Herramientas > Explorador de la API Graph > app Tio, "Identificador de acceso de
-     usuario", permisos: pages_show_list, pages_read_engagement, pages_manage_posts,
-     instagram_basic, instagram_content_publish, business_management.
-     "Generate Access Token" y elige solo tu página y tu Instagram.
-  4. Herramientas > Depurador de token de acceso: pega el token, "Depurar",
-     "Ampliar identificador de acceso" y copia el token nuevo.
-  5. En el Explorador pega el token ampliado, consulta  me/accounts  y copia el
-     "access_token" de El Tío Ahorrador. Ese no caduca: va en el secreto META_TOKEN.
+  2. business.facebook.com/settings > portafolio DogosLosCunados:
+     - Cuentas > Páginas: debe estar El Tío Ahorrador. Cuentas > Cuentas de
+       Instagram: debe estar @eltioahorrador. Cuentas > Apps: debe estar Tio.
+     - Usuarios > Usuarios del sistema > Agregar: nombre "tio-bot", rol Empleado.
+     - Con tio-bot seleccionado, "Asignar activos": la página El Tío Ahorrador y
+       la cuenta de Instagram, con permiso de contenido (crear/publicar), y la app Tio.
+     - "Generar token": app Tio, caducidad "Nunca", permisos pages_show_list,
+       pages_read_engagement, pages_manage_posts, instagram_basic,
+       instagram_content_publish, business_management. Copia el token.
+  3. Ese token va en el secreto META_TOKEN de GitHub.
+  4. Compruébalo: Actions > "Tío Ahorrador" > "Run workflow" > revisar.
 
 USAR EN TU COMPUTADORA (opcional)
   pip install -r requirements.txt

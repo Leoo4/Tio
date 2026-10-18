@@ -46,8 +46,22 @@ def graph(cfg, metodo, ruta, **datos):
 
 
 def cuentas(cfg):
-    """Con un token de página, /me es la página de Facebook."""
-    pagina = graph(cfg, "GET", "me", fields="id,name,instagram_business_account{id,username}")
+    """Con un token de página, /me es la página de Facebook. Con un token de usuario
+    (o de usuario del sistema) se busca la página en me/accounts y se usa su token."""
+    campos = "id,name,instagram_business_account{id,username}"
+    try:
+        pagina = graph(cfg, "GET", "me", fields=campos)
+    except ErrorMeta as e:
+        if "(código 100)" not in str(e):  # 100 = /me no es una página
+            raise
+        paginas = graph(cfg, "GET", "me/accounts", fields=campos + ",access_token")["data"]
+        pagina = next((p for p in paginas if p["id"] == cfg.get("pagina_id")), None)
+        if pagina is None and len(paginas) == 1:
+            pagina = paginas[0]
+        if pagina is None:
+            raise ErrorMeta("el token no tiene acceso a tu página de Facebook (o tiene "
+                            "varias y falta PAGINA_ID)")
+        cfg["token"] = pagina["access_token"]
     ig = pagina.get("instagram_business_account")
     if not ig:
         raise ErrorMeta(f"la página '{pagina['name']}' no tiene una cuenta de Instagram "
@@ -126,7 +140,7 @@ def main():
     cfg = {"version": "v26.0", **leer_json(CONFIG, {})}
     # En GitHub Actions los datos llegan como variables (el token, como secreto)
     for clave, variable in (("token", "META_TOKEN"), ("afiliado", "AFILIADO"),
-                            ("pagina", "PAGINA")):
+                            ("pagina", "PAGINA"), ("pagina_id", "PAGINA_ID")):
         if os.environ.get(variable):
             cfg[clave] = os.environ[variable]
     if not cfg.get("token"):
@@ -138,13 +152,14 @@ def main():
               "sean de tu cuenta.")
 
     if modo == "--revisar":
+        token_original = cfg["token"]
         pagina, ig = cuentas(cfg)
         limite = graph(cfg, "GET", f"{ig['id']}/content_publishing_limit", fields="quota_usage")
         uso = (limite.get("data") or [{}])[0].get("quota_usage", "?")
         print(f"✓ Facebook: {pagina['name']} (id {pagina['id']})")
         print(f"✓ Instagram: @{ig.get('username')} (id {ig['id']})")
         print(f"  Publicaciones por API en las últimas 24 h: {uso}")
-        info = graph(cfg, "GET", "debug_token", input_token=cfg["token"])["data"]
+        info = graph(cfg, "GET", "debug_token", input_token=token_original)["data"]
         if info.get("expires_at", 0) == 0:
             print("✓ El token no caduca.")
         else:
