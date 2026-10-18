@@ -31,9 +31,9 @@ Para volver a publicar una oferta: borra su link de salida/publicados.json.
 CONFIGURACIÓN (ya está hecha; solo por si hay que repetirla)
 GitHub:
   - Settings > Pages > Source: "GitHub Actions".
-  - Settings > Secrets and variables > Actions > secreto META_TOKEN = token de la
-    token del bot de Meta (ver abajo). NUNCA lo pongas en un archivo
-    del repositorio: el repositorio es público.
+  - Settings > Secrets and variables > Actions > secreto META_TOKEN = token del bot
+    de Meta (ver abajo). NUNCA lo pongas en un archivo del repositorio: el
+    repositorio es público.
   - El nombre de afiliado y la dirección de la página están en
     .github/workflows/tio.yml (AFILIADO y PAGINA). Los horarios también (cron, en UTC).
 Meta (token del bot = usuario del sistema, no caduca):
