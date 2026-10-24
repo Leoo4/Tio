@@ -17,6 +17,8 @@ Para agregar ofertas: en github.com/Leoo4/Tio abre links.txt, toca el lápiz
 (Edit), pega tus links de afiliado (uno por línea) y "Commit changes".
 Funciona también desde el celular. La página se actualiza sola en 1 o 2 minutos y
 las ofertas nuevas se publican en las siguientes vueltas, una por vez.
+Para cambiar la frase con la que empieza una publicación, agrega al final de su
+línea:   | texto: 🔥 ¡SÚPER OFERTA!     (sin eso, el bot elige una frase al azar).
 
 Para ver qué hizo el bot: pestaña "Actions" del repositorio. Cada vuelta tiene una
 palomita verde (todo bien) o una X roja (algo falló: abre la vuelta para ver por qué).

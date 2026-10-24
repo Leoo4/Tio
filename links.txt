@@ -1,9 +1,12 @@
 # Pega aquí tus links de afiliado, uno por línea.
 # Si un producto falla, puedes escribir sus datos a mano así:
 # link | título | precio | precio antes | url de imagen
+# Para cambiar la frase de inicio de las publicaciones, agrega al final:
+#   link | texto: 🔥 ¡SÚPER OFERTA!
 https://meli.la/2oR1ucS
 https://meli.la/2xNWNua
 https://meli.la/1wmj3dR
 https://meli.la/1kPEbSN
 https://meli.la/2Vowk3L
 https://meli.la/1CPLpgL
+https://meli.la/2PfrUzo | texto: 🔥 ¡SÚPER OFERTA!

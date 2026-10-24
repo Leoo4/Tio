@@ -132,16 +132,20 @@ def obtener(link):
 
 
 def leer_links():
-    """Cada línea: link   o bien   link | título | precio | precio antes | url imagen"""
+    """Cada línea: link   o bien   link | título | precio | precio antes | url imagen
+    En cualquier línea, "| texto: ..." cambia la frase de inicio de las publicaciones."""
     filas = []
     for linea in (BASE / "links.txt").read_text(encoding="utf-8").splitlines():
         linea = linea.strip()
         if not linea or linea.startswith("#"):
             continue
-        partes = [x.strip() for x in linea.split("|")] + [""] * 5
+        partes = [x.strip() for x in linea.split("|")]
+        intro = next((p[len("texto:"):].strip() for p in partes
+                      if p.lower().startswith("texto:")), None)
+        partes = [p for p in partes if not p.lower().startswith("texto:")] + [""] * 5
         filas.append({"link": partes[0], "titulo": partes[1] or None,
                       "precio": numero(partes[2] or None), "antes": numero(partes[3] or None),
-                      "imagen": partes[4] or None})
+                      "imagen": partes[4] or None, "intro": intro or None})
     return filas
 
 
@@ -243,7 +247,7 @@ def linea_precio(d):
 
 
 def captions(d, n):
-    intro = random.choice(INTROS)
+    intro = d.get("intro") or random.choice(INTROS)
     cuerpo = f"{intro}\n\n{d['titulo']}\n{linea_precio(d)}\n\n"
     fin = "\n\n⚠️ El precio puede cambiar en cualquier momento.\n"
     fb = (cuerpo + f"👉 Cómpralo aquí: {d['link']}" + fin +
